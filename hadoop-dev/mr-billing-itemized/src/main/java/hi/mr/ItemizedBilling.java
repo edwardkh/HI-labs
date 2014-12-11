@@ -37,7 +37,7 @@ public class ItemizedBilling extends Configured implements Tool {
 
     Configuration conf = getConf();
 
-    Job job = new Job(conf, getClass().getName() + "--<your_name>"); // TODO
+    Job job = new Job(conf, getClass().getName() + "--Ed"); // TODO
     job.setJarByClass(ItemizedBilling.class);
     job.setMapperClass(MyMapper.class);
     job.setReducerClass(MyReducer.class);
@@ -57,21 +57,29 @@ public class ItemizedBilling extends Configured implements Tool {
     public void map(Object key, Text record, Context context)
         throws IOException {
       // System.out.println (record);
-      try {
-        // / TODO : split record into tokens
-        // String[] tokens = record.toString()....
-        // System.out.println (Arrays.toString(tokens));
 
-        /// TODO : extract attributes
-        // String customerIdStr = tokens[1].trim();
-        // String resourceStr = ....
-        // String costStr = ....
-        // int cost = ..... ;    // convert to actual int
+      // sample data looks like this
+      //  timestamp,  customer_id,  resource_id,   qty,   cost
+      // 1325404800864,1,6,83,64
+      // 1325404801728,2,3,17,166
+
+      try {
+
+        /// TODO : split the records by ,
+        String [] tokens = record.toString().split(",");
+        System.out.println (Arrays.toString(tokens));
+
+        /// TODO : extract the following from tokens
+        String timestampStr = tokens[0].trim();
+        String customerIdStr = tokens[1].trim();
+        String resourceIdStr = tokens[2].trim();
+        String costStr = tokens[4].trim();
+        int cost = Integer.parseInt(tokens[4].trim()); // convert to actual int
 
         /// TODO : create output key/value pair
-        // Text keyOutCustomerResource = new Text (???);
-        // IntWritable valueOutCost = new IntWritable(???);
-        // context.write(keyOutCustomerResource, valueOutCost);
+        Text keyOutCustomerResource = new Text (customerIdStr + "," + resourceIdStr);
+        IntWritable valueOutCost = new IntWritable(cost);
+        context.write(keyOutCustomerResource, valueOutCost);
 
       } catch (Exception e) {
         System.out.println("*** exception:");
@@ -89,7 +97,7 @@ public class ItemizedBilling extends Configured implements Tool {
       int total = 0;
       for (IntWritable cost : results) {
         // TODO
-        // add up all the costs
+        total += cost.get();
       }
       context.write(key, new IntWritable(total));
 
