@@ -37,7 +37,7 @@ public class BillingTotal extends Configured implements Tool {
 
     Configuration conf = getConf();
 
-    Job job = new Job(conf, getClass().getName() + "--<your_name>"); // TODO
+    Job job = new Job(conf, getClass().getName() + "Ed"); // TODO
     job.setJarByClass(BillingTotal.class);
     job.setMapperClass(MyMapper.class);
     job.setReducerClass(MyReducer.class);
@@ -55,7 +55,7 @@ public class BillingTotal extends Configured implements Tool {
 
     @Override
     public void map(Object key, Text record, Context context)
-        throws IOException {
+            throws IOException {
       // System.out.println (record);
       try {
         // sample data looks like this
@@ -64,19 +64,19 @@ public class BillingTotal extends Configured implements Tool {
         // 1325404801728,2,3,17,166
 
         /// TODO : split the records by ,
-        // String [] tokens = record.toString()......
-        // System.out.println (Arrays.toString(tokens));
+        String [] tokens = record.toString().split(",");
+        System.out.println (Arrays.toString(tokens));
 
         /// TODO : extract the following from tokens
-        // String timestampStr = tokens[0].trim();
-        // String customerIdStr = ....
-        // String costStr = ....
-        // int cost = .... // convert to actual int
+        String timestampStr = tokens[0].trim();
+        String customerIdStr = tokens[1].trim();
+        String costStr = tokens[2].trim();
+        int cost = Integer.parseInt(tokens[3].trim()); // convert to actual int
 
         /// TODO : create output key / value pair
-        // Text keyOutCustomer = new Text (?);
-        // IntWritable valueOutCost = new IntWritable(?);
-        // context.write(keyOutCustomer, valueOutCost);
+        Text keyOutCustomer = new Text (customerIdStr);
+        IntWritable valueOutCost = new IntWritable(cost);
+        context.write(keyOutCustomer, valueOutCost);
 
       } catch (Exception e) {
         System.out.println("*** exception:");
@@ -86,14 +86,14 @@ public class BillingTotal extends Configured implements Tool {
   }
 
   public static class MyReducer extends
-      Reducer<Text, IntWritable, Text, IntWritable> {
+          Reducer<Text, IntWritable, Text, IntWritable> {
 
     public void reduce(Text key, Iterable<IntWritable> results, Context context)
-        throws IOException, InterruptedException {
+            throws IOException, InterruptedException {
       int total = 0;
       for (IntWritable cost : results) {
         // TODO
-        // add up all the costs
+        total += cost.get();
       }
       context.write(key, new IntWritable(total));
     }
