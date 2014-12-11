@@ -25,6 +25,8 @@ public class BillingTotal extends Configured implements Tool {
     System.exit(res);
   }
 
+
+  //blah blah
   @Override
   public int run(String[] args) throws Exception {
 
